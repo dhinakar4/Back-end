@@ -1,6 +1,24 @@
 let express = require("express");
 let fs = require("fs");
 let bd = require("body-parser");
+let db = require("mongoose");
+
+
+db.connect("mongodb://localhost:27017/demoserver")
+    .then(() => { console.log("db connected") })
+    .catch((e) => { console.log("error" + e) })
+
+
+let myschema = new db.Schema(
+    {
+        name: { required: true, unique: false, type: String, trim: true },
+        phone: { required: true, unique: true, type: Number, trim: true },
+        email: { required: true, unique: true, type: String, trim: true }
+
+    }
+)
+
+let mymod = new db.model("users", myschema)
 
 let app = express()
 
@@ -92,8 +110,8 @@ app.get("/remove", (req, res) => {
         fs.writeFile("data.json", JSON.stringify(users, null, 2), (err) => {
             if (err) throw err;
 
-        res.send("user was removed!");
-        
+            res.send("user was removed!");
+
         });
     })
 })
@@ -101,23 +119,29 @@ app.get("/remove", (req, res) => {
 app.get("/search", (req, res) => {
 
     let id = req.query.id
-    
-    fs.readFile("data.json","utf-8",(err,data) => {
 
-        if(err) throw err;
+    fs.readFile("data.json", "utf-8", (err, data) => {
+
+        if (err) throw err;
 
         let users = JSON.parse(data);
 
         let user = users.find((u) => u.id == id);
 
-        if(!user) {
-            
-           return res.send("user not found!")
+        if (!user) {
+
+            return res.send("user not found!")
         }
 
         res.send(user);
 
     })
+})
+
+app.post("/main", async(req, res) => {
+    let {name, email, phone} = req.body
+    await mymod.create({name,email,phone})
+    res.send({msg:"success!"})
 })
 
 app.listen(8000, () => { console.log("server has started!") })
