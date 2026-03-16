@@ -29,7 +29,7 @@ app.get("/", (req, res) => {
     res.send("hello express")
 });
 
-app.post("/create", (req, res) => {
+app.post("/add", (req, res) => {
     let name = req.body.name;
     let mobile = req.body.mobile;
 
@@ -141,7 +141,7 @@ app.get("/search", (req, res) => {
 app.post("/main", async(req, res) => {
     let {name, email, phone} = req.body
     await mymod.create({name,email,phone})
-    res.send({msg:"success!"})
+    res.send("success!");
 })
 
 app.listen(8000, () => { console.log("server has started!") })
